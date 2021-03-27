@@ -1,0 +1,59 @@
+﻿@page "/ClienteList"
+@using OnlineBlazorApp.Data.Service
+@using OnlineBlazorApp.Data.Model
+
+@inject IClienteService ClienteService
+@inject NavigationManager NavigationManager
+
+<h1>Lista de Clientes</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th colspan="2">Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (clientes != null)
+        {
+            @foreach (var cliente in clientes)
+            {
+                <tr>
+                    <td>@cliente.IdCliente</td>
+                    <td>@cliente.NombreCliente</td>
+                    <td>@cliente.ApellidoCliente</td>
+                    <td>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" title="Edit">
+                            <span class="oi oi-pencil" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" title="Delete">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+
+    IEnumerable<Cliente> clientes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await ClienteService.GetAllClientes();
+    }
+
+    void EditarRegistro(int id)
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+}

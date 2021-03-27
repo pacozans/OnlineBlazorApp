@@ -1,0 +1,109 @@
+﻿@page "/TiendaList"
+@using OnlineBlazorApp.Data.Model
+@using OnlineBlazorApp.Data.Service
+@using System.IO
+
+@inject ITiendaService TiendaService
+@inject NavigationManager NavigationManager
+
+@inject Blazored.SessionStorage.ISessionStorageService sessionCarrito
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
+<h1>Lista de Tiendas</h1>
+
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Código</th>
+            <th>Nombre</th>
+            <th>Banner</th>
+            <th>Session</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (tiendas != null)
+        {
+            foreach (var tienda in tiendas)
+            {
+                <tr>
+                    <td>
+                        @tienda.IdTienda
+                    </td>
+                    <td>
+                        @tienda.NombreTienda
+                    </td>
+                    <td>
+                        @if (@tienda.BannerTienda != null)
+                        {
+                            <img src="@tienda.BannerTienda" asp-append-version="true" style="width:100px;height:100px;" />
+                        }
+                        else
+                        {
+                            <img src="" alt="" class="img-thumbnail">
+                        }
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" title="Session" @onclick="cod=> SetSession(tienda.IdTienda)">
+                            <span class="oi oi-clipboard" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" title="Edit" @onclick="()=> EditarTienda(tienda.IdTienda)">
+                            <span class="oi oi-pencil" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" title="Delete" @onclick="()=> DeleteTienda(tienda.IdTienda)">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    IEnumerable<Tienda> tiendas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tiendas = await TiendaService.GetAllTiendas();
+        //tiendas = await TiendaService.GetTiendas("Zoom", "");
+    }
+
+    public void SetSession(int codProducto)
+    {
+        var infoCarro = new InformacionCarro();
+
+        if (httpContextAccessor.HttpContext.User.Identity.Name != null)
+        {
+            infoCarro.usuarioSession = httpContextAccessor.HttpContext.User.Identity.Name;
+        }
+        else
+        {
+            infoCarro.usuarioSession = "";
+        }
+
+        infoCarro.productoSession = codProducto;
+
+        sessionCarrito.SetItemAsync("s_Carro", infoCarro);
+
+    }
+
+    public void EditarTienda(int id)
+    {
+        NavigationManager.NavigateTo("/TiendaEdit/" + id);
+    }
+
+    protected async Task DeleteTienda(int id)
+    {
+        await TiendaService.TiendaDelete(id);
+        NavigationManager.NavigateTo("/");
+    }
+
+}

@@ -1,0 +1,41 @@
+﻿@page "/CarroCompras"
+
+@using OnlineBlazorApp.Data.Model
+@inject Blazored.SessionStorage.ISessionStorageService sessionCarrito
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
+<h3>Carro de Compras</h3>
+
+<button class="btn btn-success" @onclick="() => SetSession(10)">Producto 10</button>
+<button class="btn btn-success" @onclick="() => SetSession(20)">Producto 20</button>
+<button class="btn btn-success" @onclick="() => SetSession(30)"> Producto 30</button>
+
+<label>@message</label>
+
+@code {
+
+    string message ="Esperando Session";
+
+    public void SetSession(int codProducto)
+    {
+        var infoCarro = new InformacionCarro();
+
+        if (httpContextAccessor.HttpContext.User.Identity.Name != null)
+        {
+            infoCarro.usuarioSession = httpContextAccessor.HttpContext.User.Identity.Name;
+        }
+        else
+        {
+            infoCarro.usuarioSession = "";
+        }
+
+        infoCarro.productoSession = codProducto;
+
+        sessionCarrito.SetItemAsync("s_Carro", infoCarro);
+
+        message = "Session asignada "; 
+    }
+
+}

@@ -1,0 +1,38 @@
+﻿@page "/VerificarCarrito"
+
+@using OnlineBlazorApp.Data.Model
+
+@inject Blazored.SessionStorage.ISessionStorageService session
+
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
+
+<h2>Verificar Carrito de Compras</h2>
+
+<button class="btn btn-primary" @onclick="GetSession">Obtener Datos de Session</button>
+<button class="btn btn-success" @onclick="ClearSession">Borrar Session</button>
+
+
+@if (informacionCarro != null)
+{
+    <p>@informacionCarro.productoSession</p>
+    <p>@informacionCarro.usuarioSession</p>
+}
+
+@code {
+    public InformacionCarro informacionCarro;
+
+    public async Task GetSession()
+    {
+        informacionCarro = await session.GetItemAsync<InformacionCarro>("s_Carro");
+
+    }
+
+    public void ClearSession()
+    {
+        session.ClearAsync();
+        informacionCarro = new InformacionCarro();
+    }
+}

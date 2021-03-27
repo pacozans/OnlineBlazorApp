@@ -1,0 +1,95 @@
+﻿@page "/TiendaAdd"
+
+@using OnlineBlazorApp.Data.Model
+@using OnlineBlazorApp.Data.Service
+
+@inject ITiendaService TiendaService
+@inject NavigationManager NavigationManager
+@inject IFileUpload fileUpload
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
+
+<h1>Adicionar Tienda</h1>
+
+<EditForm Model="@tienda" OnValidSubmit="@TiendaInsert">
+    <table>
+        <tr>
+            <td>Código:</td>
+            <td><input type="text" @bind="tienda.IdTienda" required /></td>
+        </tr>
+        <tr>
+            <td>Nombre:</td>
+            <td><input type="text" @bind="tienda.NombreTienda" required /></td>
+        </tr>
+        <tr>
+            <td>Facebook:</td>
+            <td><input type="text" @bind="tienda.FacebookTienda" /></td>
+            
+        </tr>
+        <tr>
+            <td>Banner:</td>
+            <td>
+                <InputFile OnChange="SeleccionarArchivo"></InputFile>
+                @if (file != null)
+                {
+                    <p>Archivo cargado: @file.Name Tamaño del archivo: @file.Size Extensión @file.Type</p>
+
+                }
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Adicionar" />
+                <input type="button" value="Cancelar" @onclick="@Cancel" />
+            </td>
+        </tr>
+    </table>
+
+</EditForm>
+
+
+
+@code {
+
+    Tienda tienda = new Tienda();
+    IFileListEntry file;
+
+    public string UserName = null;
+
+    protected async Task TiendaInsert()
+    {
+        if (httpContextAccessor.HttpContext.User.Identity.Name != null)
+        {
+            tienda.UsuarioRegistro = httpContextAccessor.HttpContext.User.Identity.Name;
+        }
+
+        await TiendaService.TiendaInsert(tienda);
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    public bool verificarTipoImagen(string extension)
+    {
+        string[] typeImages = { ".png", ".jpg", ".jpeg", ".gif" };
+
+        return typeImages.Contains(extension);
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    async Task SeleccionarArchivo(IFileListEntry[] files)
+    {
+        file = files.FirstOrDefault();
+        if (file != null && verificarTipoImagen(Path.GetExtension(file.Name)))
+        {
+            tienda.BannerTienda = "/UploadImage/" + file.Name;
+            await fileUpload.UploadAsync(file);
+        }
+    }
+}
