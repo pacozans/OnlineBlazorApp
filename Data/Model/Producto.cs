@@ -10,6 +10,7 @@ namespace OnlineBlazorApp.Data.Model
         public int IdProducto { get; set; }
         public string NombreProducto { get; set; }
         public float PrecioProducto { get; set; }
-        public byte EstadoProducto { get; set; }
+        public string ImagenProducto { get; set; }
+        public int IdEstadoProducto { get; set; }
     }
 }

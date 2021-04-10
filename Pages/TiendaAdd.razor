@@ -85,11 +85,12 @@
 
     async Task SeleccionarArchivo(IFileListEntry[] files)
     {
+        string root = "/UploadImage/";
         file = files.FirstOrDefault();
         if (file != null && verificarTipoImagen(Path.GetExtension(file.Name)))
         {
-            tienda.BannerTienda = "/UploadImage/" + file.Name;
-            await fileUpload.UploadAsync(file);
+            tienda.BannerTienda = root  + file.Name;
+            await fileUpload.UploadAsync(file, root);
         }
     }
 }

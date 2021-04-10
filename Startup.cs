@@ -36,6 +36,8 @@ namespace OnlineBlazorApp
             services.AddScoped<IClienteService, ClienteService>();
             services.AddScoped<ITiendaService, TiendaService>();
             services.AddScoped<IFileUpload, FileUpload>();
+            services.AddScoped<IProductoService, ProductoService>();
+            services.AddScoped<IEstadoProductoService, EstadoProductoService>();
             services.AddBlazoredSessionStorage();
 
             //Conecction DB

@@ -17,7 +17,7 @@
     <table>
         <tr>
             <td>Código:</td>
-            <td><input type="text" @bind="tienda.IdTienda" required disabled/></td>
+            <td><input type="text" @bind="tienda.IdTienda" required readonly/></td>
         </tr>
         <tr>
             <td>Nombre:</td>
@@ -114,8 +114,9 @@
         file = files.FirstOrDefault();
         if (file != null && verificarTipoImagen(Path.GetExtension(file.Name)))
         {
-            tienda.BannerTienda = "/UploadImage/" + file.Name;
-            await fileUpload.UploadAsync(file);
+            string root = "/UploadImage/";
+            tienda.BannerTienda = root + file.Name;
+            await fileUpload.UploadAsync(file, root);
         }
     }
 }

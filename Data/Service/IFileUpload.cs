@@ -5,6 +5,6 @@ namespace OnlineBlazorApp.Data.Service
 {
     public interface IFileUpload
     {
-        Task UploadAsync(IFileListEntry fileEntry);
+        Task UploadAsync(IFileListEntry fileEntry, string root);
     }
 }

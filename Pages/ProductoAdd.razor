@@ -1,0 +1,133 @@
+﻿@page "/ProductoAdd"
+
+@using OnlineBlazorApp.Data.Model
+@using OnlineBlazorApp.Data.Service
+
+@inject IProductoService ProductoService
+@inject IEstadoProductoService EstadoProductoService
+@inject NavigationManager NavigationManager
+@inject IFileUpload fileUpload
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
+
+<h1>Adicionar Producto</h1>
+
+<EditForm Model="@producto" OnValidSubmit="@ProductoInsert">
+
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Código:</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" @bind="producto.IdProducto" required placeholder="Código .... ">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Nombre:</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" @bind="producto.NombreProducto" required placeholder="Nombre .... ">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Valor:</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" @bind="producto.PrecioProducto" required placeholder="Nombre .... ">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Imagen (png, jpg, jpeg, gif):</label>
+        <div class="col-sm-10">
+            <InputFile OnChange="SeleccionarArchivo"></InputFile>
+            @if (file != null)
+            {
+                <img src="@producto.ImagenProducto" asp-append-version="true" style="width:200px;height:200px;" />
+            }
+        </div>
+    </div>
+    <fieldset class="form-group">
+        <div class="row">
+            <label class="col-sm-2 col-form-label">Estado Producto:</label>
+            <div class="col-sm-10">
+                @if (estadoProducto != null)
+                {
+                    foreach (var estado in estadoProducto)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="@producto.IdProducto" id="@estado.IdEstado" value="@estado.IdEstado" @onchange="SeleccionarEstado">
+                            <label class="form-check-label" for="gridRadios1">
+                                @estado.NombreEstado
+                            </label>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </fieldset>
+    @if (estadoProducto != null)
+    {
+        <select class="form-select" aria-label="Default select example" @onchange="SeleccionarEstado">
+            <option selected>Seleccione Estado</option>
+            @foreach (var aptEstado in estadoProducto)
+            {
+                <option value="@aptEstado.IdEstado">@aptEstado.NombreEstado</option>
+            }
+        </select>
+    }
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary">Adicionar</button>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+
+    Producto producto = new Producto();
+    IEnumerable<EstadoProducto> estadoProducto;
+
+    IFileListEntry file;
+
+    public string UserName = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        estadoProducto = await EstadoProductoService.GetAllEstadoProducto();
+    }
+
+    protected async Task ProductoInsert()
+    {
+        await ProductoService.ProductoInsert(producto);
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    public bool verificarTipoImagen(string extension)
+    {
+        string[] typeImages = { ".png", ".jpg", ".jpeg", ".gif" };
+
+        return typeImages.Contains(extension);
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    async Task SeleccionarArchivo(IFileListEntry[] files)
+    {
+        string root = "/UploadImage/ImagenProducto/";
+        file = files.FirstOrDefault();
+
+        if (file != null && verificarTipoImagen(Path.GetExtension(file.Name)))
+        {
+            producto.ImagenProducto = root + file.Name;
+            await fileUpload.UploadAsync(file, root);
+        }
+    }
+
+    public void SeleccionarEstado(ChangeEventArgs args)
+    {
+        producto.IdEstadoProducto = Convert.ToByte(args.Value);
+    }
+}
