@@ -14,7 +14,8 @@ namespace OnlineBlazorApp.Areas.Identity
     {
         public void Configure(IWebHostBuilder builder)
         {
-            builder.ConfigureServices((context, services) => {
+            builder.ConfigureServices((context, services) =>
+            {
                 services.AddDbContext<OnlineBlazorAppContext>(options =>
                     options.UseSqlServer(
                         context.Configuration.GetConnectionString("SqlDBContext")));

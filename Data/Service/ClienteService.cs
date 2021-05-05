@@ -12,6 +12,11 @@ namespace OnlineBlazorApp.Data.Service
     public class ClienteService : IClienteService
     {
         private readonly SqlConnectionConfiguration _configuration;
+
+        public ClienteService()
+        {
+        }
+
         public ClienteService(SqlConnectionConfiguration configuration)
         {
             _configuration = configuration;
@@ -34,10 +39,21 @@ namespace OnlineBlazorApp.Data.Service
             return true;
         }
 
+        public async Task<Cliente> ClienteSelect(int id)
+        {
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                var query = @"SELECT IdCliente, NombreCliente, ApellidoCliente
+                            FROM Cliente
+                            WHERE IdCliente = @IdCliente";
+                return await conn.QueryFirstOrDefaultAsync<Cliente>(query.ToString(), new { IdCliente = id }, commandType: CommandType.Text);
+            }
+        }
+
         public async Task<IEnumerable<Cliente>> GetAllClientes()
         {
             IEnumerable<Cliente> clientes;
-            
+
             using (var conn = new SqlConnection(_configuration.Value))
             {
                 const string query = "SELECT IdCliente, NombreCliente, ApellidoCliente FROM Cliente";

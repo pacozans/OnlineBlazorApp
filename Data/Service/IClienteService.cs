@@ -8,6 +8,7 @@ namespace OnlineBlazorApp.Data.Service
     {
         Task<bool> ClienteInsert(Cliente cliente);
 
+        Task<Cliente> ClienteSelect(int id);
         Task<IEnumerable<Cliente>> GetAllClientes();
 
         //Task<Cliente> GetCliente(int id);

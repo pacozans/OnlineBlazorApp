@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OnlineBlazorApp.Data;
 using OnlineBlazorApp.Data.Service;
+using OnlineBlazorApp.Data.PDF;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,9 @@ namespace OnlineBlazorApp
             services.AddScoped<IFileUpload, FileUpload>();
             services.AddScoped<IProductoService, ProductoService>();
             services.AddScoped<IEstadoProductoService, EstadoProductoService>();
+            services.AddScoped<IFacturaService, FacturaService>();
+            services.AddScoped<IFacturaProductoService, FacturaProductoService>();
+            services.AddScoped<IFacturaPDF, FacturaPDF>();
             services.AddBlazoredSessionStorage();
 
             //Conecction DB
@@ -46,7 +50,7 @@ namespace OnlineBlazorApp
             services.AddSingleton(SqlConnectionConfiguration);
         }
 
-        
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

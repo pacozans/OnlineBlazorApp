@@ -84,8 +84,8 @@ namespace OnlineBlazorApp.Data.Service
             IEnumerable<Producto> productos;
             using (var conn = new SqlConnection(_configuration.Value))
             {
-                const string query = @"SELECT IdProducto, NombreProducto, PrecioProducto, ImagenProducto FROM Tienda WHERE IdEstadoProducto=@IdEstadoProducto";
-                productos = await conn.QueryAsync<Producto>(query,new {IdEstadoProducto = estado }, commandType: CommandType.Text);
+                const string query = @"SELECT IdProducto, NombreProducto, PrecioProducto, ImagenProducto FROM Producto WHERE IdEstadoProducto=@IdEstadoProducto";
+                productos = await conn.QueryAsync<Producto>(query, new { IdEstadoProducto = estado }, commandType: CommandType.Text);
             }
 
             return productos;

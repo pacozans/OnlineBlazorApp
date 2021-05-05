@@ -1,0 +1,320 @@
+﻿@page "/FacturaAdd/"
+
+
+@using OnlineBlazorApp.Data.Model
+@using OnlineBlazorApp.Data.Service
+@using OnlineBlazorApp.Data.PDF
+
+@inject Blazored.SessionStorage.ISessionStorageService SessionFactura
+@inject IClienteService ClienteService
+@inject IFacturaService FacturaService
+@inject IFacturaProductoService FacturaProductoService
+@inject IProductoService ProductoService
+@inject IFacturaPDF FacturaServicePDF
+
+<form method="post">
+    <table class="table-primary" align="center">
+        <thead>
+            <tr>
+                <th colspan="4" class="text-center"><h2 class="text-center">Crear Factura</h2></th>
+            </tr>
+            <tr>
+                <th>Número:</th>
+                <th>Fecha:</th>
+                <th>Cliente:</th>
+                <th>Nombre Cliente:</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (itemDetalleFactura == null)
+            {
+                <tr>
+                    <td>
+                        <input type="text" name="FrmIdFactura" value="@factura.IdFactura" size="6" disabled />
+                    </td>
+                    <td>
+                        <input type="datetime-local" data-val="true" id="Date" name="Date" @bind-value="factura.FechaFactura">
+                    </td>
+                    <td>
+                        <input type="text" name="FrmIdCliente" @onchange="BuscaCliente" size="6" required />
+                    </td>
+                    <td>
+                        <input type="text" @bind="nombreCompletoCliente" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" align="center">
+                        <button class="btn btn-primary" @onclick="CreaFactura">Adicionar</button>
+                        <button class="btn btn-primary">Cancelar</button>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>
+                        <input type="text" value="@factura.IdFactura" size="6" disabled />
+                    </td>
+                    <td>
+                        <input type="text" value="@factura.FechaFactura" disabled />
+                    </td>
+                    <td>
+                        <input type="text" value="@factura.ClienteFactura" size="6" disabled />
+                    </td>
+                    <td>
+                        <input type="text" value="@nombreCompletoCliente" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" align="center">
+                        <button class="btn btn-primary" disabled>Adicionar</button>
+                        <button class="btn btn-primary" disabled>Cancelar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p></p>
+    <table align="center">
+        <thead>
+            <tr class="table-warning">
+                <th colspan="8" class="text-center"><h3>Detalle de la Factura</h3></th>
+            </tr>
+            <tr class="table-warning">
+                <th>Producto:</th>
+                <th>Nombre:</th>
+                <th>Valor:</th>
+                <th>Cantidad:</th>
+                <th>Subtotal:</th>
+                <th colspan="3" class="text-center">Acciones:</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (detalleFactura != null)
+            {
+                totalFactura = 0;
+                @foreach (var aptDetalle in detalleFactura)
+                {
+                    subTotal = aptDetalle.ValorProducto * aptDetalle.CantidadProducto;
+                    totalFactura += subTotal;
+                    <tr class="table-warning">
+                        <td>
+                            <input type="text" value="@aptDetalle.IdProducto" size="6" disabled />
+                        </td>
+                        <td>
+                            <input type="text" value="@aptDetalle.NombreProducto" disabled />
+                        </td>
+                        <td>
+                            <input type="text" value="@string.Format("{0:C}",aptDetalle.ValorProducto)" disabled />
+                        </td>
+                        <td>
+                            <input type="text" value="@aptDetalle.CantidadProducto" size="4" required />
+                        </td>
+                        <td align="right">
+                            <input type="text" value="@string.Format("{0:C}",subTotal)" disabled />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default" aria-label="Left Align" title="Adicionar" @onclick="() => addFacturaProducto(aptDetalle)">
+                                <span class="oi oi-plus" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default" aria-label="Left Align" title="Edit" @onclick="() => editFacturaProducto(aptDetalle)">
+                                <span class="oi oi-pencil" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-default" aria-label="Left Align" title="Delete" @onclick="() => deleteFacturaProducto(aptDetalle)">
+                                <span class="oi oi-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                <tr class="table-warning">
+                    <td colspan="4" align="center">
+                        <h3>Total</h3>
+                    </td>
+                    <td align="right">
+                        <input type="text" value="@string.Format("{0:C}",totalFactura)" disabled />
+                    </td>
+                    <td colspan="3"></td>
+                </tr>
+            }
+            @if (itemDetalleFactura != null)
+            {
+                <tr class="table-primary">
+                    <td colspan="8" align="center"><b>Ingresar Producto</b></td>
+                </tr>
+                <tr class="table-primary">
+                    <td>
+                        <input type="text" @onchange="BuscaProducto" size="6" required />
+                    </td>
+                    <td>
+                        <input type="text" @bind="itemDetalleFactura.NombreProducto" disabled />
+                    </td>
+                    <td>
+                        <input type="text" value="@string.Format("{0:C}", itemDetalleFactura.ValorProducto)" disabled />
+                    </td>
+                    <td>
+                        <input type="text" @bind="itemDetalleFactura.CantidadProducto" size="4" required />
+                    </td>
+                    <td align="right">
+                        <input type="text" value="@string.Format("{0:C}",(itemDetalleFactura.ValorProducto* itemDetalleFactura.CantidadProducto))" disabled />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" title="Adicionar" @onclick="() => addFacturaProducto(itemDetalleFactura)">
+                            <span class="oi oi-plus" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" title="Edit" @onclick="() => editFacturaProducto(itemDetalleFactura)">
+                            <span class="oi oi-pencil" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" title="Delete" @onclick="() => deleteFacturaProducto(itemDetalleFactura)">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p></p>
+    <table align="center">
+        <thead>
+            <tr class="table-warning">
+                <th colspan="2" class="text-center"><h3>IMPRIMIR FACTURA</h3></th>
+            </tr>
+            <tr class="table-warning">
+                <th>Seleccione la Factura:</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    @if (facturas != null)
+                    {
+                    <select class="form-select" aria-label="Default select example" @onchange="SeleccionarFactura">
+                        <option value="0" selected>Seleccionar Factura</option>
+                        @foreach (var aptFactura in facturas)
+                        {
+                            <option value="@aptFactura.IdFactura">@aptFactura.IdFactura</option>
+                        }
+                    </select>
+                    }
+                </td>
+                <td>
+                    <button class="btn btn-primary" @onclick="GeneraPDF">Imprimir Factura</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+
+@code {
+    public Factura comodinFactura = new Factura();
+    public Factura factura;
+    public string nombreCompletoCliente = "Nombre del Cliente";
+    public Cliente cliente;
+    IEnumerable<DetalleFactura> detalleFactura;
+    DetalleFactura itemDetalleFactura = null;
+    public Producto producto;
+    public FacturaProducto facturaProducto = new FacturaProducto();
+    public double totalFactura = 0;
+    public double subTotal = 0;
+    public int numFactura = 0;
+    IEnumerable<Factura> facturas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        factura = new Factura();
+        factura.IdFactura = await FacturaService.NumeroFactura();
+        factura.FechaFactura = DateTime.Now;
+        facturas = await FacturaService.ListaFacturas();
+    }
+
+    public void asignarFecha(ChangeEventArgs args)
+    {
+        //factura.FechaFactura = Convert.ToDateTime(args.Value);
+    }
+
+    async Task CreaFactura()
+    {
+        itemDetalleFactura = new DetalleFactura();
+        await FacturaService.FacturaInsert(factura);
+        itemDetalleFactura.IdFactura = factura.IdFactura;
+        itemDetalleFactura.IdProducto = 0;
+    }
+
+    async Task BuscaCliente(ChangeEventArgs args)
+    {
+        cliente = await ClienteService.ClienteSelect(Convert.ToInt32(args.Value));
+        if (cliente != null)
+        {
+            nombreCompletoCliente = cliente.NombreCliente + " " + cliente.ApellidoCliente;
+            factura.ClienteFactura = cliente.IdCliente;
+        }
+    }
+
+    async Task VerDetalleFactura()
+    {
+        if (factura != null)
+        {
+            detalleFactura = await FacturaProductoService.GetDetalleFactura(factura.IdFactura);
+        }
+        else
+        {
+            detalleFactura = null;
+        }
+    }
+
+    async Task BuscaProducto(ChangeEventArgs args)
+    {
+        producto = await ProductoService.ProductoSelect(Convert.ToInt32(args.Value));
+        if (producto != null)
+        {
+            itemDetalleFactura.IdFactura = factura.IdFactura;
+            itemDetalleFactura.IdProducto = producto.IdProducto;
+            itemDetalleFactura.NombreProducto = producto.NombreProducto;
+            itemDetalleFactura.ValorProducto = producto.PrecioProducto;
+            itemDetalleFactura.CantidadProducto = 0;
+        }
+    }
+
+    async Task addFacturaProducto(DetalleFactura detalleFactura)
+    {
+        await FacturaProductoService.FacturaProductoInsert(detalleFactura.GetFacturaProducto());
+        await VerDetalleFactura();
+    }
+
+    async Task editFacturaProducto(DetalleFactura detalleFactura)
+    {
+        await FacturaProductoService.FacturaProductoUpdate(detalleFactura.GetFacturaProducto());
+        await VerDetalleFactura();
+    }
+
+    async Task deleteFacturaProducto(DetalleFactura detalleFactura)
+    {
+        await FacturaProductoService.FacturaProductoDelete(detalleFactura.GetFacturaProducto());
+        await VerDetalleFactura();
+    }
+
+    public void SeleccionarFactura(ChangeEventArgs args)
+    {
+        numFactura = Convert.ToInt32(args.Value);
+    }
+
+    async Task GeneraPDF()
+    {
+        if (numFactura > 0)
+        {
+            factura = await FacturaService.FacturaSelect(numFactura);
+            cliente = await ClienteService.ClienteSelect(factura.ClienteFactura);
+            detalleFactura = await FacturaProductoService.GetDetalleFactura(numFactura); 
+            await FacturaServicePDF.GeneraFactura(factura,cliente,detalleFactura);
+        }
+    }
+}

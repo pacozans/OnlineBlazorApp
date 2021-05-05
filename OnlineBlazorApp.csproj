@@ -14,6 +14,7 @@
     <PackageReference Include="Blazored.SessionStorage" Version="1.0.13" />
     <PackageReference Include="BlazorInputFile" Version="0.2.0" />
     <PackageReference Include="Dapper" Version="2.0.78" />
+    <PackageReference Include="itext7" Version="7.1.15" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.13" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.13" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.2" />
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\FilePdf\" />
     <Folder Include="wwwroot\UploadImage\ImagenProducto\" />
   </ItemGroup>
 

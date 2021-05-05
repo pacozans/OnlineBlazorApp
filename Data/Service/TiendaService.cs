@@ -41,7 +41,7 @@ namespace OnlineBlazorApp.Data.Service
                 var query = @"SELECT IdTienda, NombreTienda, FacebookTienda, BannerTienda,UsuarioRegistro
                             FROM Tienda
                             WHERE IdTienda = @IdTienda";
-                return await conn.QueryFirstOrDefaultAsync<Tienda>(query.ToString(), new {IdTienda=id}, commandType: CommandType.Text);
+                return await conn.QueryFirstOrDefaultAsync<Tienda>(query.ToString(), new { IdTienda = id }, commandType: CommandType.Text);
             }
         }
 
@@ -101,21 +101,21 @@ namespace OnlineBlazorApp.Data.Service
                 {
                     string query = @"SELECT IdTienda, NombreTienda, FacebookTienda,BannerTienda,UsuarioRegistro 
                                             FROM Tienda 
-                                            WHERE NombreTienda LIKE '%"+nombreTienda+"%' AND BannerTienda LIKE '%"+ bannerTienda +"%'";
+                                            WHERE NombreTienda LIKE '%" + nombreTienda + "%' AND BannerTienda LIKE '%" + bannerTienda + "%'";
                     tiendas = await conn.QueryAsync<Tienda>(query, commandType: CommandType.Text);
                 }
                 else
                 {
                     if (nombreTienda.Length > 0)
                     {
-                        string query = @"SELECT IdTienda, NombreTienda, BannerTienda FROM Tienda WHERE NombreTienda LIKE '%"+ nombreTienda + "%'";
+                        string query = @"SELECT IdTienda, NombreTienda, BannerTienda FROM Tienda WHERE NombreTienda LIKE '%" + nombreTienda + "%'";
                         tiendas = await conn.QueryAsync<Tienda>(query, commandType: CommandType.Text);
                     }
                     else
                     {
                         string query = @"SELECT IdTienda, NombreTienda, FacebookTienda,BannerTienda,UsuarioRegistro 
                                             FROM Tienda 
-                                            WHERE BannerTienda LIKE '%"+ bannerTienda +"%'";
+                                            WHERE BannerTienda LIKE '%" + bannerTienda + "%'";
                         tiendas = await conn.QueryAsync<Tienda>(query, commandType: CommandType.Text);
                     }
                 }

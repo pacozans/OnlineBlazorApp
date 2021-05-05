@@ -1,0 +1,63 @@
+﻿@page "/ProductoList"
+
+@using OnlineBlazorApp.Data.Model
+@using OnlineBlazorApp.Data.Service
+
+@inject IProductoService ProductoService
+@inject IEstadoProductoService EstadoProductoService
+@inject NavigationManager NavigationManager
+@inject IFileUpload fileUpload
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+
+
+<h1>Productos por Estado</h1>
+
+
+
+
+    @if (estadoProducto != null)
+    {
+        <select class="form-select" aria-label="Default select example" @onchange="SeleccionarEstado">
+            <option selected>Seleccione Estado</option>
+            @foreach (var aptEstado in estadoProducto)
+            {
+                <option value="@aptEstado.IdEstado">@aptEstado.NombreEstado</option>
+            }
+        </select>
+    }
+    @if (productos != null)
+    {
+        <table>
+        @foreach (var aptProducto in productos)
+        {
+            <tr>
+                <td>@aptProducto.IdProducto </td>
+                <td>@aptProducto.NombreProducto </td>
+            </tr>
+
+        }
+        </table>
+    }
+
+
+
+
+@code {
+
+
+    IEnumerable<EstadoProducto> estadoProducto;
+    IEnumerable<Producto> productos;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        estadoProducto = await EstadoProductoService.GetAllEstadoProducto();
+    }
+
+    async Task SeleccionarEstado(ChangeEventArgs args)
+    {
+        productos = await ProductoService.GetProductosActivos(Convert.ToByte(args.Value));
+    }
+}
